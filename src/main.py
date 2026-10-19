@@ -71,6 +71,12 @@ def main():
 
        total_salidas = sum(estacion.salidas for estacion in movimientos.values())
        total_llegadas = sum(estacion.llegadas for estacion in movimientos.values())
+       
+       if total_salidas != len(viajes_seleccionados) or total_llegadas != len(viajes_seleccionados):
+            raise ValueError(
+                                "Error en el conteo: las salidas y llegadas "
+                                "no coinciden con la cantidad de viajes seleccionados."
+            )
 
        print(f"Estaciones registradas: {len(movimientos)}")
        print(f"Total de salidas: {total_salidas}")
