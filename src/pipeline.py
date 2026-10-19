@@ -2,6 +2,7 @@
 import csv
 import re
 from datetime import datetime
+from dominio import BalanceEstacion
 
 COLUMNAS_OBLIGATORIAS = [
     "id_recorrido",
@@ -50,7 +51,8 @@ def validar_recorridos(viajes):
 
     for viaje in viajes:
         motivo = None
-        identificador = str(viaje["id_recorrido"]).strip()
+        valor_id = viaje["id_recorrido"]
+        identificador = "" if valor_id is None else str(valor_id).strip()
 
         if not identificador:
             motivo = "Identificador de viaje vacío"
@@ -59,16 +61,16 @@ def validar_recorridos(viajes):
             motivo = "Viaje duplicado"
 
         else:
-
             if any(
-                not str(viaje[campo]).strip()
-                for campo in [
-                    "id_estacion_origen",
-                    "id_estacion_destino",
-                    "nombre_estacion_origen",
-                    "nombre_estacion_destino"
-                ]
+                    viaje[campo] is None or not str(viaje[campo]).strip()
+                    for campo in [
+                                     "id_estacion_origen",
+                                     "id_estacion_destino",
+                                      "nombre_estacion_origen",
+                                      "nombre_estacion_destino"
+                     ]
             ):
+
                      motivo = "Estación de origen o destino incompleta"
 
             elif not all(
@@ -140,6 +142,7 @@ def seleccionar_periodo(viajes_validos, fecha_desde, fecha_hasta):
 
     return viajes_seleccionados
 
+
 def registrar_movimientos(viajes_seleccionados):
     movimientos = {}
 
@@ -151,39 +154,28 @@ def registrar_movimientos(viajes_seleccionados):
         nombre_destino = viaje["nombre_estacion_destino"]
 
         if origen not in movimientos:
-            movimientos[origen] = {
-                "nombre": nombre_origen,
-                "salidas": 0,
-                "llegadas": 0
-            }
+            movimientos[origen] = BalanceEstacion(origen, nombre_origen)
 
         if destino not in movimientos:
-            movimientos[destino] = {
-                "nombre": nombre_destino,
-                "salidas": 0,
-                "llegadas": 0
-            }
+            movimientos[destino] = BalanceEstacion(destino, nombre_destino)
 
-        movimientos[origen]["salidas"] += 1
-        movimientos[destino]["llegadas"] += 1
+        movimientos[origen].registrar_salida()
+        movimientos[destino].registrar_llegada()
 
     return movimientos
+
+
 
 def generar_balance(movimientos):
     reporte = []
 
-    for id_estacion, datos in movimientos.items():
-        salidas = datos["salidas"]
-        llegadas = datos["llegadas"]
-
-        balance = llegadas - salidas
-
+    for id_estacion, estacion in movimientos.items():
         reporte.append({
             "id_estacion": id_estacion,
-            "nombre_estacion": datos["nombre"],
-            "salidas": salidas,
-            "llegadas": llegadas,
-            "balance_neto": balance
+            "nombre_estacion": estacion.nombre,
+            "salidas": estacion.salidas,
+            "llegadas": estacion.llegadas,
+            "balance_neto": estacion.calcular_balance()
         })
 
     return reporte

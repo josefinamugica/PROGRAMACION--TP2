@@ -10,6 +10,7 @@ from pipeline import (
     generar_balance,
     exportar_reporte
 )
+import json
 
 def main():
     print("=== REPORTE DE MOVIMIENTOS DE ECOBICI ===")
@@ -41,6 +42,8 @@ def main():
        print(f"Viajes válidos: {len(viajes_validos)}")
        print(f"Viajes rechazados: {len(viajes_rechazados)}")
 
+       
+
        carpeta_salida = carpeta_proyecto / "outputs"
        carpeta_salida.mkdir(exist_ok=True)
 
@@ -48,6 +51,12 @@ def main():
        guardar_rechazos(viajes_rechazados, ruta_rechazos)
 
        print("Archivo de rechazos guardado en outputs/viajes_rechazados.csv")
+       if not viajes_validos:
+               raise ValueError(
+                       "No hay viajes válidos para analizar. "
+                       "Todos los registros fueron rechazados."
+               )
+       
        print("\n=== SELECCIÓN DEL PERÍODO ===")
 
        fecha_desde = input("Ingresá la fecha y hora inicial (AAAA-MM-DD HH:MM:SS): ")
@@ -60,8 +69,8 @@ def main():
        print(f"Viajes seleccionados: {len(viajes_seleccionados)}")
        movimientos = registrar_movimientos(viajes_seleccionados)
 
-       total_salidas = sum(estacion["salidas"] for estacion in movimientos.values())
-       total_llegadas = sum(estacion["llegadas"] for estacion in movimientos.values())
+       total_salidas = sum(estacion.salidas for estacion in movimientos.values())
+       total_llegadas = sum(estacion.llegadas for estacion in movimientos.values())
 
        print(f"Estaciones registradas: {len(movimientos)}")
        print(f"Total de salidas: {total_salidas}")
@@ -82,9 +91,11 @@ def main():
 
        print("Reporte guardado en outputs/reporte_estaciones.csv")
 
-    except (OSError, ValueError) as error:
-          print(f"Error durante el procesamiento: {error}")
+    except json.JSONDecodeError:
+        print("Error: el archivo JSON tiene un formato incorrecto.")
 
+    except (OSError, ValueError) as error:
+        print(f"Error durante el procesamiento: {error}")
 
 if __name__ == "__main__":
     main()
