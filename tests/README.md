@@ -18,6 +18,8 @@ El proyecto incluye pruebas automáticas desarrolladas con `unittest`, que permi
 
 6. **Falla de lectura (`test_archivo_inexistente`):** comprueba que, al intentar leer un archivo CSV inexistente, se produzca un error en lugar de ocultar la falla.
 
+7. **Finalización anterior al inicio (`test_finalizacion_anterior_al_inicio`):** comprueba que un viaje cuya fecha y hora de finalización sean anteriores a las de inicio sea rechazado y no genere movimientos en ninguna estación.
+
 Estas pruebas también permiten verificar aspectos adicionales de calidad exigidos por la consigna: la validación de resultados importantes, el tratamiento explícito de valores faltantes, duplicados y fechas inválidas, y la detección de fallas de lectura. De esta manera, se comprueba que la aplicación no solo procesa viajes válidos, sino que también reconoce determinadas inconsistencias y evita que afecten los resultados.
 
 ###   Ejecución de las pruebas

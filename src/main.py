@@ -11,11 +11,32 @@ from pipeline import (
     exportar_reporte
 )
 import json
+from datetime import datetime
 
+def pedir_fecha(mensaje):
+    while True:
+        fecha = input(mensaje).strip()
+
+        try:
+            datetime.strptime(fecha, "%Y-%m-%d %H:%M:%S")
+            return fecha
+
+        except ValueError:
+            print(
+                "Error: la fecha ingresada no es válida. "
+                "Utilizá el formato AAAA-MM-DD HH:MM:SS."
+            )
+            print("Ejemplo: 2024-01-23 10:30:00. Intentá nuevamente.\n")
 def main():
     print("=== REPORTE DE MOVIMIENTOS DE ECOBICI ===")
 
-    formato = input("Elegí el formato de los datos (csv/json): ").strip().lower()
+    while True:
+        formato = input("Elegí el formato de los datos (csv/json): ").strip().lower()
+
+        if formato in ("csv", "json"):
+            break
+
+        print("Error: formato incorrecto. Ingresá csv o json.\n")
 
     carpeta_proyecto = Path(__file__).resolve().parent.parent
 
@@ -59,8 +80,24 @@ def main():
        
        print("\n=== SELECCIÓN DEL PERÍODO ===")
 
-       fecha_desde = input("Ingresá la fecha y hora inicial (AAAA-MM-DD HH:MM:SS): ")
-       fecha_hasta = input("Ingresá la fecha y hora final (AAAA-MM-DD HH:MM:SS): ")
+       while True:
+            fecha_desde = pedir_fecha(
+                "Ingresá la fecha y hora inicial (AAAA-MM-DD HH:MM:SS): "
+            )
+
+            fecha_hasta = pedir_fecha(
+                "Ingresá la fecha y hora final (AAAA-MM-DD HH:MM:SS): "
+            )
+
+            if datetime.strptime(fecha_desde, "%Y-%m-%d %H:%M:%S") <= datetime.strptime(
+                fecha_hasta, "%Y-%m-%d %H:%M:%S"
+            ):
+                break
+
+            print(
+                "Error: la fecha inicial no puede ser posterior a la fecha final. "
+                "Ingresá nuevamente el período.\n"
+            )
 
        viajes_seleccionados = seleccionar_periodo(
             viajes_validos, fecha_desde, fecha_hasta

@@ -101,7 +101,7 @@ class TestEcobici(unittest.TestCase):
         self.assertEqual(total_llegadas, 3)
         self.assertEqual(balance_total, 0)
 
-#2 ADICIONALES:
+#3 ADICIONALES:
     
     def test_viaje_duplicado(self):
         viaje = {
@@ -142,6 +142,29 @@ class TestEcobici(unittest.TestCase):
             rechazados[0]["motivo"],
             "Estación de origen o destino incompleta"
         )
+    
+    def test_finalizacion_anterior_al_inicio(self):
+        viaje = {
+            "id_recorrido": "30",
+            "fecha_origen_recorrido": "2024-01-23 11:00:00",
+            "fecha_destino_recorrido": "2024-01-23 10:00:00",
+            "id_estacion_origen": "100",
+            "id_estacion_destino": "200",
+            "nombre_estacion_origen": "Estación A",
+            "nombre_estacion_destino": "Estación B"
+        }
+
+        validos, rechazados = validar_recorridos([viaje])
+
+        self.assertEqual(len(validos), 0)
+        self.assertEqual(len(rechazados), 1)
+        self.assertEqual(
+            rechazados[0]["motivo"],
+            "La finalización es anterior al inicio"
+        )
+
+        movimientos = registrar_movimientos(validos)
+        self.assertEqual(len(movimientos), 0)
 
 ## Una comprobación de que el programa no oculta fallas de lectura: archivo CSV inexistente
     def test_archivo_inexistente(self):
@@ -155,7 +178,6 @@ class TestEcobici(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             fuente.cargar(ruta)
 
- 
 
 if __name__ == "__main__":
     unittest.main()
