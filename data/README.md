@@ -8,7 +8,7 @@ Los datos fueron obtenidos del portal oficial **Buenos Aires Data**, pertenecien
 
 - **Fuente:** Buenos Aires Data — Bicicletas Públicas.
 - **Organismo responsable:** Secretaría de Transporte y Obras Públicas, Jefatura de Gabinete de Ministros, Gobierno de la Ciudad de Buenos Aires.
-- **URL:** https://data.buenosaires.gob.ar/dataset/bicicletas-publicas
+- **URL:** https://data.buenosaires.gob.ar/dataset/bicicletas-publicas?
 - **Recurso utilizado:** Recorridos Realizados 2024.
 - **Licencia:** Creative Commons Atribución 2.5 Argentina (CC BY 2.5 AR), que permite reutilizar los datos reconociendo su procedencia.
 - **Fecha de consulta:** 18 de octubre de 2026.
@@ -35,47 +35,49 @@ Las fechas y horas de los registros observados presentan el formato `AAAA-MM-DD 
 
 No se conservaron variables relacionadas con los usuarios, como `id_usuario` o `genero`, porque no son necesarias para resolver el problema planteado.
 
-##  Selección y preparación de la muestra
+## Selección y preparación de la muestra
 
-Debido al tamaño del archivo original, se decidió trabajar con una **muestra de 100 registros de viajes**, cantidad que supera el mínimo de 50 observaciones establecido en la consigna.
+Debido al tamaño del archivo original, se decidió trabajar con una **muestra de 200 registros reales de viajes**, cantidad que supera el mínimo de 50 observaciones establecido en la consigna.
 
-Para obtenerla, se desarrolló el script `extraer_muestra.py`, que lee el archivo CSV original y selecciona sus primeros 100 registros, conservando únicamente las siete variables definidas anteriormente.
+Para obtenerla, se utilizó el script `extraer_muestra_con_errores.py`, que lee el archivo CSV original y selecciona 180 registros que cumplen las condiciones de validación y 20 registros que presentan inconsistencias. En ambos casos, se conservan los valores originales y únicamente las siete variables necesarias para el funcionamiento de la aplicación.
 
-Los registros seleccionados se guardaron en `data/viajes_ecobici.csv`. Posteriormente, mediante el script `convertir_json.py`, se generó el archivo `data/viajes_ecobici.json`, que contiene los mismos viajes y campos en formato JSON.
+La selección fue **intencional y orientada a comprobar el tratamiento de errores**, por lo que no constituye una muestra aleatoria ni representa la proporción real de registros incorrectos del sistema Ecobici.
 
-De esta manera, se dispone de dos archivos equivalentes que permitirán desarrollar y comprobar la lectura de datos en ambos formatos, como requiere el trabajo práctico.
+Los 200 registros seleccionados se guardaron en `data/viajes_ecobici.csv`. Posteriormente, mediante el script `convertir_json.py`, se generó el archivo `data/viajes_ecobici.json`, que contiene los mismos viajes y campos en formato JSON.
 
-En esta etapa, los registros fueron extraídos sin aplicar procesos de limpieza ni eliminación de duplicados. Estas operaciones se implementarán posteriormente como parte del funcionamiento de la aplicación.
+De esta manera, se dispone de dos archivos equivalentes que permiten comprobar la lectura, validación y procesamiento de datos en ambos formatos.
 
-##  Conservación y reproducibilidad de los datos
+**Los registros no fueron corregidos ni eliminados durante la preparación de la muestra.** La identificación y separación de viajes válidos y rechazados se realiza durante la ejecución de la aplicación mediante la función `validar_recorridos()`. En la prueba realizada, se obtuvieron 180 viajes válidos y 20 rechazados.
 
-Para facilitar la ejecución y reproducción del proyecto, se conservaron los archivos CSV y JSON con la muestra de 100 viajes dentro de la carpeta `data/` del repositorio.
+## Conservación y reproducibilidad de los datos
+
+Para facilitar la ejecución y reproducción del proyecto, se conservaron los archivos CSV y JSON con la muestra de **200 viajes** dentro de la carpeta `data/` del repositorio.
 
 También se mantienen los scripts utilizados para preparar los datos:
 
-- **`extraer_muestra.py`:** permite obtener los primeros 100 registros del archivo original y seleccionar las variables necesarias.
+- **`extraer_muestra_con_errores.py`:** permite obtener 200 registros reales del archivo original, seleccionando 180 viajes válidos y 20 con inconsistencias, y conservando las variables necesarias.
 - **`convertir_json.py`:** genera una versión JSON equivalente a partir de la muestra CSV.
 
-Ademas, como se menciono anteriormente, debido al tamaño del conjunto de datos original, de aproximadamente 783 MB,  se optó por conservar una muestra reducida de 100 viajes. Para reproducir la obtención de los datos, se debe descargar el recurso *Recorridos Realizados 2024* desde Buenos Aires Data, descomprimir el archivo y ejecutar el script de extracción, indicando la ubicación del CSV original. Luego, se ejecuta el script de conversión para generar la versión JSON.
+Además, como se mencionó anteriormente, debido al tamaño del conjunto de datos original, de aproximadamente 783 MB, se optó por conservar una muestra reducida de 200 viajes. Para reproducir la obtención de los datos, se debe descargar el recurso *Recorridos Realizados 2024* desde Buenos Aires Data, descomprimir el archivo y ejecutar el script de extracción, indicando la ubicación del CSV original. Luego, se ejecuta el script de conversión para generar la versión JSON.
 
 Los comandos para ejecutar ambos scripts desde la carpeta principal del proyecto son:
 
 ```bash
-py extraer_muestra.py "ruta_del_archivo_original.csv"
+py extraer_muestra_con_errores.py "ruta_del_archivo_original.csv"
 py convertir_json.py
 ```
 
-Este procedimiento permite volver a generar las muestras a partir del mismo archivo original, sin necesidad de almacenar el conjunto completo en el repositorio. Los archivos CSV y JSON resultantes pueden utilizarse directamente como entradas de la aplicación.
+Este procedimiento permite volver a generar la muestra a partir del mismo archivo original, sin necesidad de almacenar el conjunto completo en el repositorio. Los archivos CSV y JSON resultantes pueden utilizarse directamente como entradas de la aplicación.
 
-##  Limitaciones y restricciones de los datos
+## Limitaciones y restricciones de los datos
 
 Si bien se utilizan registros reales de Ecobici, es importante considerar algunas limitaciones:
 
-- **Tamaño y representatividad:** la muestra contiene únicamente los primeros 100 registros del archivo original. Por lo tanto, no constituye una muestra aleatoria ni permite obtener conclusiones generales sobre todos los viajes realizados durante 2024.
-- **Calidad de los registros:** los datos originales pueden contener valores faltantes, fechas inconsistentes o identificadores duplicados. Su identificación y tratamiento formarán parte de las validaciones de la aplicación.
+- **Tamaño y representatividad:** la muestra contiene 200 registros del archivo original, seleccionados intencionalmente para incluir 180 viajes válidos y 20 con inconsistencias reales. Por lo tanto, no constituye una muestra aleatoria ni garantiza representar todos los períodos, estaciones o movimientos de Ecobici durante 2024. En consecuencia, los resultados obtenidos describen exclusivamente los viajes incluidos en la muestra y no pueden generalizarse al funcionamiento completo del sistema.
+- **Calidad de los registros:** la muestra incluye registros con inconsistencias, principalmente relacionadas con las fechas de los recorridos. Estos errores se identifican mediante las validaciones de la aplicación, que separa los viajes válidos de los rechazados y registra los motivos correspondientes.
 - **Disponibilidad de información:** los datos permiten analizar movimientos registrados entre estaciones, pero no conocer la cantidad real de bicicletas disponibles, ya que no incluyen el inventario inicial ni las reposiciones.
 - **Alcance temporal:** los registros corresponden a viajes de 2024 y no representan el estado actual del sistema Ecobici.
 
-Por último, la muestra conserva únicamente las variables necesarias para el análisis. No se incluyen identificadores de usuarios ni otros datos personales, y el archivo original completo no se incorporará al repositorio debido a su tamaño.
+Por último, la muestra conserva únicamente las variables necesarias para el análisis. No se incluyen identificadores de usuarios ni otros datos personales, y el archivo original completo no se incorpora al repositorio debido a su tamaño.
 
 Estas decisiones permiten trabajar con un conjunto de datos pequeño y adecuado para desarrollar, probar y documentar la aplicación, reconociendo las limitaciones de los resultados que se obtengan.
